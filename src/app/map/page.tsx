@@ -20,8 +20,8 @@ export default function TrashMap() {
 
   useEffect(() => {
     // Load real reports from data store
-    const loadReports = () => {
-      const allReports = dataStore.getReports()
+    const loadReports = async () => {
+      const allReports = await dataStore.getReports()
       setReports(allReports)
       setFilteredReports(allReports)
       setLoading(false)

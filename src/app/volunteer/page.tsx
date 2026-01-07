@@ -34,8 +34,8 @@ export default function VolunteerDashboard() {
 
   // Load real reports from data store
   useEffect(() => {
-    const loadReports = () => {
-      const allReports = dataStore.getReports()
+    const loadReports = async () => {
+      const allReports = await dataStore.getReports()
       setReports(allReports)
     }
 
@@ -71,11 +71,12 @@ export default function VolunteerDashboard() {
     }
   }
 
-  const handleStartCleaning = (reportId: string) => {
-    const updatedReport = dataStore.updateReportStatus(reportId, 'IN_PROGRESS')
+  const handleStartCleaning = async (reportId: string) => {
+    const updatedReport = await dataStore.updateReportStatus(reportId, 'IN_PROGRESS')
     if (updatedReport) {
       // Refresh the reports list
-      setReports(dataStore.getReports())
+      const allReports = await dataStore.getReports()
+      setReports(allReports)
     }
   }
 
@@ -99,11 +100,12 @@ export default function VolunteerDashboard() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000))
 
-      const updatedReport = dataStore.addCleaning(selectedReport.id, afterImage)
+      const updatedReport = await dataStore.addCleaning(selectedReport.id, afterImage)
       
       if (updatedReport) {
         // Refresh the reports list
-        setReports(dataStore.getReports())
+        const allReports = await dataStore.getReports()
+        setReports(allReports)
       }
 
       setAfterImage(null)

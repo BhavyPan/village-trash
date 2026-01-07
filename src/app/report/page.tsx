@@ -164,7 +164,7 @@ export default function ReportTrash() {
 
     try {
       // Create new report with user info
-      const newReport = dataStore.addReport({
+      const newReport = await dataStore.addReport({
         description: description || 'Trash reported by villager',
         latitude: location.lat,
         longitude: location.lng,
