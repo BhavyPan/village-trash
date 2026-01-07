@@ -6,6 +6,26 @@ import { Users, Camera, Upload, MapPin, CheckCircle, Clock, AlertCircle, Filter,
 import { dataStore, TrashReport } from '@/lib/data'
 import Link from 'next/link'
 
+// Create a separate interface for Map component that excludes null
+interface MapTrashReport {
+  id: string
+  description?: string
+  latitude: number
+  longitude: number
+  imageUrl?: string
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
+  createdAt: string
+  user: {
+    name?: string
+    email?: string
+  }
+  cleaning?: {
+    id: string
+    afterImageUrl?: string
+    cleanedAt: string
+  }
+}
+
 const MapComponent = dynamic(() => import('@/components/Map'), { 
   ssr: false,
   loading: () => <div className="h-96 bg-gray-200 rounded-lg flex items-center justify-center">Loading map...</div>
@@ -188,7 +208,19 @@ export default function VolunteerDashboard() {
               <div className="lg:col-span-2">
                 <div className="h-96 lg:h-[500px] bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden border-2 border-white/30">
                   <MapComponent 
-                    reports={filteredReports}
+                    reports={filteredReports.map(report => ({
+                      ...report,
+                      description: report.description || undefined,
+                      imageUrl: report.imageUrl || undefined,
+                      user: {
+                        name: report.user.name || undefined,
+                        email: report.user.email || undefined
+                      },
+                      cleaning: report.cleaning ? {
+                        ...report.cleaning,
+                        afterImageUrl: report.cleaning.afterImageUrl || undefined
+                      } : undefined
+                    }))}
                     onReportClick={setSelectedReport}
                   />
                 </div>

@@ -6,6 +6,26 @@ import { MapPin, Filter, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-reac
 import { dataStore, TrashReport } from '@/lib/data'
 import Link from 'next/link'
 
+// Create a separate interface for Map component that excludes null
+interface MapTrashReport {
+  id: string
+  description?: string
+  latitude: number
+  longitude: number
+  imageUrl?: string
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
+  createdAt: string
+  user: {
+    name?: string
+    email?: string
+  }
+  cleaning?: {
+    id: string
+    afterImageUrl?: string
+    cleanedAt: string
+  }
+}
+
 const MapComponent = dynamic(() => import('@/components/Map'), { 
   ssr: false,
   loading: () => <div className="h-96 bg-gray-200 rounded-lg flex items-center justify-center">Loading map...</div>
@@ -93,7 +113,19 @@ export default function TrashMap() {
               
               <div className="h-96 bg-gray-100 rounded-lg overflow-hidden">
                 <MapComponent 
-                  reports={filteredReports}
+                  reports={filteredReports.map(report => ({
+                    ...report,
+                    description: report.description || undefined,
+                    imageUrl: report.imageUrl || undefined,
+                    user: {
+                      name: report.user.name || undefined,
+                      email: report.user.email || undefined
+                    },
+                    cleaning: report.cleaning ? {
+                      ...report.cleaning,
+                      afterImageUrl: report.cleaning.afterImageUrl || undefined
+                    } : undefined
+                  }))}
                   onReportClick={setSelectedReport}
                 />
               </div>

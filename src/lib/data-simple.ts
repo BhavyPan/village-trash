@@ -40,7 +40,7 @@ export const dataStore = {
 
   // Update report status
   async updateReportStatus(id: string, status: TrashReport['status']): Promise<TrashReport | null> {
-    const reportIndex = reports.findIndex((r: TrashReport) => r.id === id)
+    const reportIndex = reports.findIndex(r => r.id === id)
     if (reportIndex !== -1) {
       reports[reportIndex].status = status
       return reports[reportIndex]
@@ -50,7 +50,7 @@ export const dataStore = {
 
   // Add cleaning information
   async addCleaning(reportId: string, afterImageUrl: string): Promise<TrashReport | null> {
-    const report = reports.find((r: TrashReport) => r.id === reportId)
+    const report = reports.find(r => r.id === reportId)
     if (report) {
       report.status = 'COMPLETED'
       report.cleaning = {
@@ -65,11 +65,11 @@ export const dataStore = {
 
   // Get reports by status
   async getReportsByStatus(status: TrashReport['status']): Promise<TrashReport[]> {
-    return reports.filter((r: TrashReport) => r.status === status)
+    return reports.filter(r => r.status === status)
   },
 
   // Get reports by user
   async getReportsByUser(userEmail: string): Promise<TrashReport[]> {
-    return reports.filter((r: TrashReport) => r.user.email === userEmail)
+    return reports.filter(r => r.user.email === userEmail)
   }
 }

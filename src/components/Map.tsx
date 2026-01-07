@@ -3,14 +3,33 @@
 import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import 'leaflet/dist/leaflet.css'
-import { TrashReport } from '@/lib/data'
+
+// Create a separate interface for Map component that excludes null
+interface MapTrashReport {
+  id: string
+  description?: string
+  latitude: number
+  longitude: number
+  imageUrl?: string
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
+  createdAt: string
+  user: {
+    name?: string
+    email?: string
+  }
+  cleaning?: {
+    id: string
+    afterImageUrl?: string
+    cleanedAt: string
+  }
+}
 
 // Import SimpleMap as fallback
 const SimpleMap = dynamic(() => import('./SimpleMap'), { ssr: false })
 
 interface MapProps {
-  reports: TrashReport[]
-  onReportClick: (report: TrashReport) => void
+  reports: MapTrashReport[]
+  onReportClick: (report: MapTrashReport) => void
 }
 
 export default function Map({ reports, onReportClick }: MapProps) {
@@ -179,7 +198,20 @@ export default function Map({ reports, onReportClick }: MapProps) {
 
   // Use fallback map if there's an error
   if (useFallback || error) {
-    return <SimpleMap reports={reports} onReportClick={onReportClick} />
+    const convertedReports: MapTrashReport[] = reports.map(report => ({
+      ...report,
+      description: report.description || undefined,
+      imageUrl: report.imageUrl || undefined,
+      user: {
+        name: report.user.name || undefined,
+        email: report.user.email || undefined
+      },
+      cleaning: report.cleaning ? {
+        ...report.cleaning,
+        afterImageUrl: report.cleaning.afterImageUrl || undefined
+      } : undefined
+    }))
+    return <SimpleMap reports={convertedReports} onReportClick={onReportClick} />
   }
 
   return (
