@@ -4,9 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/setup-db.js && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "setup:db": "node scripts/setup-db.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
