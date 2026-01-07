@@ -18,8 +18,37 @@ export interface TrashReport {
   }
 }
 
-// In-memory storage for now
+// In-memory storage with localStorage persistence
 let reports: TrashReport[] = []
+
+// Load reports from localStorage on module initialization
+const loadReportsFromStorage = (): TrashReport[] => {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('village-trash-reports')
+      if (stored) {
+        return JSON.parse(stored)
+      }
+    } catch (error) {
+      console.error('Error loading reports from localStorage:', error)
+    }
+  }
+  return []
+}
+
+// Save reports to localStorage
+const saveReportsToStorage = (reportsToSave: TrashReport[]) => {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem('village-trash-reports', JSON.stringify(reportsToSave))
+    } catch (error) {
+      console.error('Error saving reports to localStorage:', error)
+    }
+  }
+}
+
+// Initialize reports from localStorage
+reports = loadReportsFromStorage()
 
 export const dataStore = {
   // Get all reports
@@ -35,6 +64,7 @@ export const dataStore = {
       createdAt: new Date().toISOString()
     }
     reports.unshift(newReport)
+    saveReportsToStorage(reports)
     return newReport
   },
 
@@ -43,6 +73,7 @@ export const dataStore = {
     const reportIndex = reports.findIndex((r: TrashReport) => r.id === id)
     if (reportIndex !== -1) {
       reports[reportIndex].status = status
+      saveReportsToStorage(reports)
       return reports[reportIndex]
     }
     return null
@@ -58,6 +89,7 @@ export const dataStore = {
         afterImageUrl,
         cleanedAt: new Date().toISOString()
       }
+      saveReportsToStorage(reports)
       return report
     }
     return null
