@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(VILLAGER)
+  points        Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  reports      TrashReport[]
+  cleanings    Cleaning[]
+  gifts        UserGift[]
+
+  @@map("users")
+}
+
+model TrashReport {
+  id          String      @id @default(cuid())
+  userId      String
+  description String?
+  latitude    Float
+  longitude   Float
+  imageUrl    String?
+  status      ReportStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cleaning   Cleaning?
+
+  @@map("trash_reports")
+}
+
+model Cleaning {
+  id              String      @id @default(cuid())
+  reportId        String      @unique
+  volunteerId     String
+  beforeImageUrl  String?
+  afterImageUrl   String?
+  cleanedAt       DateTime    @default(now())
+  status          CleanStatus @default(COMPLETED)
+
+  report    TrashReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  volunteer User        @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+
+  @@map("cleanings")
+}
+
+model Gift {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  imageUrl    String?
+  pointsCost  Int
+  createdAt   DateTime @default(now())
+
+  userGifts UserGift[]
+
+  @@map("gifts")
+}
+
+model UserGift {
+  id     String @id @default(cuid())
+  userId String
+  giftId String
+  redeemedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gift Gift @relation(fields: [giftId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, giftId])
+  @@map("user_gifts")
+}
+
+enum UserRole {
+  VILLAGER
+  VOLUNTEER
+  CHILD
+  ADMIN
+}
+
+enum ReportStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum CleanStatus {
+  COMPLETED
+  VERIFIED
+}
